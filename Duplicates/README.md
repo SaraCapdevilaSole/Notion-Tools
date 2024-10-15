@@ -22,15 +22,19 @@ Follow these steps to configure and run the tool:
      ```
 
 ### 3. Configure Your Environment
-   - Add your `NOTION_TOKEN` and `DATABASE_ID` to the `config.py` file:
-     ```python
-     # config.py
-     NOTION_TOKEN = 'your_notion_token'
-     DATABASE_ID = 'your_database_id'
-     ```
+   - You can configure your `NOTION_TOKEN` and `DATABASE_ID` by either:
+   1. **Environment Variables**: Users can set environment variables.
+   2. **`config.py` File**: Users can hardcode the values in the `config.py` file.
+      e.g., 
+      ```python
+      NOTION_TOKEN = 'your_notion_token'
+      DATABASE_ID = 'your_database_id'
+      ```
+   3. **Prompt**: If the values are not found in the environment or `config.py`, the script will prompt the user.
+     
 
 ### 4. Run the Tool
-   - Once your configuration is complete, you can run ```main.py``` to scan for and remove duplicate entries in your Notion database.
+   - Once your configuration is complete, you can run ```remove_duplicates.py``` to scan for and remove duplicate entries in your Notion database.
 
 ## Resources and References
 For more information about using the Notion API with Python, check out this guide:  

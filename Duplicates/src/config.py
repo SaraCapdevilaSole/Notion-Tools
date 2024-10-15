@@ -1,5 +1,9 @@
-NOTION_TOKEN = ""
-DATABASE_ID = "" 
+import os
+
+NOTION_TOKEN = os.getenv("NOTION_TOKEN") or input("Please enter your Notion Integration Token (NOTION_TOKEN): ")
+DATABASE_ID = os.getenv("DATABASE_ID") or input("Please enter your Notion Database ID (DATABASE_ID): ")
+
+VERBOSE = True # prints duplicates
 
 # First property name and type
 NAME_TITLE = 'Name'
