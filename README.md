@@ -5,6 +5,7 @@ A collection of tools and utilities designed to extend and enhance the functiona
 ## Projects
 
 ### 1. **Duplicate Removal Tool** (**Completed**)
+### 1. **URL (World Capitals) Scraper Tool** (**Completed (Beta)**)
 
 ---
 

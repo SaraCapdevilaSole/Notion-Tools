@@ -1,6 +1,6 @@
-# Duplicate Removal Tool for Notion API
+# URL (World Capitals) Scraper for Notion API
 
-This tool helps to identify and remove duplicate entries from your Notion database by interacting with Notion's API.
+This tool automates the process of fetching world capitals from [Wikipedia](https://en.wikipedia.org/wiki/List_of_national_capitals) and adding them to your Notion database.
 
 ## Setup Instructions
 
@@ -41,9 +41,9 @@ Follow these steps to configure and run the tool:
      
 
 ### 4. Run the Tool
-   - Once your configuration is complete, run the script to scan and remove duplicate entries from your Notion database:
+    - Once your configuration is complete, run the script to fetch, parse, and add entries to your Notion database:
      ```bash
-     python remove_duplicates
+     python find_capitals.py
      ```
 
 ## Resources and References
