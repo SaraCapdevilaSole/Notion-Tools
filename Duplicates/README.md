@@ -43,7 +43,7 @@ Follow these steps to configure and run the tool:
 ### 4. Run the Tool
    - Once your configuration is complete, run the script to scan and remove duplicate entries from your Notion database:
      ```bash
-     python remove_duplicates
+     python remove_duplicates.py
      ```
 
 ## Resources and References

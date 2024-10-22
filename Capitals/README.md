@@ -41,7 +41,7 @@ Follow these steps to configure and run the tool:
      
 
 ### 4. Run the Tool
-    - Once your configuration is complete, run the script to fetch, parse, and add entries to your Notion database:
+   - Once your configuration is complete, run the script to fetch, parse, and add entries to your Notion database:
      ```bash
      python find_capitals.py
      ```
