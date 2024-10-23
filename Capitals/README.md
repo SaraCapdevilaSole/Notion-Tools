@@ -46,6 +46,10 @@ Follow these steps to configure and run the tool:
      python find_capitals.py
      ```
 
+### 5. Possible Improvements:
+   - Add country flag in Notion DB row
+   - Add href content into a notion page
+
 ## Resources and References
 For more information about using the Notion API with Python, check out this guide:  
 [Python Engineer - Working with Notion API](https://www.python-engineer.com/posts/notion-api-python/)# Notion-Tools
