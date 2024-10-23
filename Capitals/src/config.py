@@ -1,4 +1,3 @@
-import copy
 import os
 
 # Notion config
@@ -25,6 +24,6 @@ DB_TEMPLATE = {
         'note': None,
     }
 
-DB_TEMPLATE['rowspan'] = copy.deepcopy(DB_TEMPLATE)
+DB_TEMPLATE['rowspan'] = {k: 1 for k in DB_TEMPLATE}
 
 VERBOSE = True

@@ -1,13 +1,15 @@
 import requests
 from bs4 import BeautifulSoup
 from typing import List, Dict, Optional, Tuple
+import copy
+import re
 
-from src.config import CONTINENTS, DB_TEMPLATE, URL
+from src.config import CONTINENTS, DB_TEMPLATE, URL, VERBOSE
 from src.utils.utils_requests import create_page
 
 def _get_text(cell: BeautifulSoup) -> str:
-    """Extract clean text from the table cell."""
-    return cell.get_text(strip=True)
+    """Extract clean text from the table cell, preserving spaces between elements."""
+    return ' '.join(cell.get_text().split())
 
 def is_country(cell: BeautifulSoup) -> Optional[str]:
     """Check if the cell contains a country (with flag icon)."""
@@ -42,7 +44,7 @@ def _detect_cell_type(cell: BeautifulSoup, classified_row: List[Dict[str, Option
     return cell_type, cell_text
 
 def row_classifier(cells: List[BeautifulSoup]) -> Dict[str, Optional[str]]:
-    classified_row = DB_TEMPLATE.copy()
+    classified_row = copy.deepcopy(DB_TEMPLATE)
     for cell in cells:
         cell_type, cell_text = _detect_cell_type(cell, classified_row)
         
@@ -51,7 +53,6 @@ def row_classifier(cells: List[BeautifulSoup]) -> Dict[str, Optional[str]]:
             if rowspan_value:
                 classified_row['rowspan'][cell_type] = int(rowspan_value)
             classified_row[cell_type] = cell_text
-    
     return classified_row
 
 def fetch_html_content(url: str) -> bytes:
@@ -67,12 +68,6 @@ def parse_table(soup: BeautifulSoup) -> BeautifulSoup:
 def extract_rows(table: BeautifulSoup) -> List[BeautifulSoup]:
     """Extract rows of interest from the table."""
     return table.find_all('tr')
-
-def _clear_rowspan(entry: Dict[str, Optional[str]]) -> Dict[str, Optional[str]]:
-    """Clear the rowspan values in the entry, setting them to 1."""
-    for key in entry['rowspan']:
-        entry['rowspan'][key] = 1  # Reset each rowspan to 1
-    return entry
 
 def _remove_rowspan(capitals: List[Dict[str, Optional[str]]]) -> List[Dict[str, Optional[str]]]:
     """Remove 'rowspan' entry from dictionary."""
@@ -94,27 +89,46 @@ def fetch_world_capitals():
         if len(cells) > 0:
             classified_country = row_classifier(cells)
             world_capitals.append(classified_country)
+            del classified_country
             
     return world_capitals
 
+def _fill_db(capitals: List[Dict[str, Optional[str]]]) -> None:
+    """Fill missing values in the DB based on rowspan."""
+    for i, current in enumerate(capitals):
+        for field, rowspan_value in current['rowspan'].items():
+            for j in range(i + 1, i + rowspan_value):
+                if j < len(capitals):
+                    next_entry = capitals[j]
+                    if next_entry[field] is None:
+                        if VERBOSE:
+                            print("\nFilling missing entry: ", next_entry, f" for field '{field}'")
+                        next_entry[field] = current[field]
+                        next_entry['rowspan'][field] = 1
+                        if VERBOSE:
+                            print("Filled to:", next_entry)
+
+def _clean_db(capitals: List[Dict[str, Optional[str]]]) -> List[Dict[str, Optional[str]]]:
+    """Clean the data by performing text replacements and other cleanup tasks."""
+    reference_pattern = re.compile(r'\[\d+\]')
+    space_before_parenthesis = re.compile(r'(?<!\s)\(') 
+    space_after_punctuation = re.compile(r'([:.,])(?=\S)')
+    for entry in capitals:
+        for key, value in entry.items():
+            if isinstance(value, str):
+                value = reference_pattern.sub("", value)
+                value = space_before_parenthesis.sub(" (", value)
+                value = space_after_punctuation.sub(r'\1 ', value)  
+                entry[key] = value.replace("de facto", "de facto - unofficial")  
+                print("Cleaned entry: ", entry[key])
+
+    capitals = _remove_rowspan(capitals)  
+    return capitals
+
 def clean_and_fill_db(capitals: List[Dict[str, Optional[str]]]) -> List[Dict[str, Optional[str]]]:
     """Clean and fill the DB of capitals with processed data."""
-    for i, current in enumerate(capitals):
-        max_value = max(current['rowspan'].values())
-        if max_value > 1:
-            for j in range(1, max_value): 
-                next_index = i + j
-                if next_index < len(capitals):
-                    next_entry = capitals[next_index]
-
-                    for key in current:
-                        if next_entry[key] is None and key != 'rowspan':
-                            next_entry[key] = current[key]
-                            next_entry['rowspan'][key] = 1
-
-        current = _clear_rowspan(current)
-    capitals = _remove_rowspan(capitals)
-    return capitals
+    _fill_db(capitals)   
+    return _clean_db(capitals)
 
 def push_capitals(capitals: List[Dict[str, Optional[str]]]) -> None:
     for capital_data in capitals:
@@ -131,4 +145,3 @@ def push_capitals(capitals: List[Dict[str, Optional[str]]]) -> None:
         }
 
         create_page(data)
-    

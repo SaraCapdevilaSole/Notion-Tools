@@ -11,7 +11,7 @@ def main():
         logging.info('Database entries cleaned and filled successfully.')
 
         push_capitals(world_capitals)
-        logging.info('A total of {len(world_capitals)} pushed to Notion successfully.')
+        logging.info(f'A total of {len(world_capitals)} pushed to Notion successfully.')
     
     except Exception as e:
         logging.error(f'An error occurred: {e}', exc_info=True)
