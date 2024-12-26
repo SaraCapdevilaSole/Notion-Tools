@@ -1,33 +1,18 @@
-from datetime import datetime, timezone
+import logging
 from src.config import DATE_TEMPLATE, VERBOSE
-
-def _get_payload(data: dict, delete: bool):
-    """
-    Construct the payload for modifying or deleting a page.
-    """
-    if delete:
-        return {"archived": True}
-    return {"properties": data}
-
-def get_date():
-    """
-    Return the current date and time in ISO format (UTC).
-    """
-    return datetime.now().astimezone(timezone.utc).isoformat()
 
 def parse_page(name_title: str, unique_pages: list, count_duplicates: int, verbose: bool = VERBOSE):
     """
     Parse a page title, check for duplicates, and return the updated duplicate count.
     """
-    normalized_name = _create_unique_identifier(name_title)
-    if normalized_name in unique_pages:
-        if verbose:
-            print(f"Duplicate found -> '{name_title}'")
-        count_duplicates += 1
-        return True, count_duplicates
+    normalised_name = _create_unique_identifier(name_title)
+    is_duplicate = normalised_name in unique_pages
+    count_duplicates += int(is_duplicate) # increment count if duplicate
+    if is_duplicate and verbose:
+        logging.info(f"Duplicate found -> '{name_title}'")
     else:
-        unique_pages.append(normalized_name)
-        return False, count_duplicates
+        unique_pages.append(normalised_name)
+    return is_duplicate, count_duplicates
 
 def _create_unique_identifier(title: str):
     """
@@ -35,17 +20,17 @@ def _create_unique_identifier(title: str):
     """
     return title.lower().replace(" ", "")
 
-def get_stats(dups_counts: int, list_nondups: list):
+def get_stats(duplicates_count: int, non_duplicates_count: int, total_time: float):
     """
     Print statistics on duplicates found in the Notion database.
     """
-    total_count = len(list_nondups) + dups_counts
-    if total_count == 0:
-        print("Error: No database entries found")
+    total_count = non_duplicates_count + duplicates_count
+    if not total_count:
+        logging.warning("No database entries found")
         return
     
-    prop = int(dups_counts * 100 / total_count)
-    print(f'\nDuplicates Found: {dups_counts}/{total_count} ({prop}%)')
+    prop = int(duplicates_count * 100 / total_count)
+    logging.info(f'\nDuplicates Found: {duplicates_count}/{total_count} ({prop}%) | Total time taken: {total_time:.1f} s')
 
 def fetch_template(name: str, property_type: str, data):
     """
