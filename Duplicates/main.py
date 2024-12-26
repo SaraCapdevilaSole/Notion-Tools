@@ -13,7 +13,7 @@ def  main() -> None:
     start_time = time.time()
     notion_client = NotionAPIClient(token=str(NOTION_TOKEN))
 
-    unique_pages: List[str] = []
+    unique_pages: set[str] = set()
     count_duplicates: int = 0
 
     try:
